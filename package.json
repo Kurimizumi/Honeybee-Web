@@ -1,0 +1,25 @@
+{
+  "name": "honeybee-web",
+  "version": "0.0.1",
+  "description": "Pure JS version of the Honeybee section of Honeybee-Hive",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "forge": "(cd node_modules/node-forge && npm install && npm run bundle && cp js/forge.bundle.js ../../js)",
+    "build": "npm run forge && browserify js/scripts/main.js > js/bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kurimizumi/Honeybee-Web.git"
+  },
+  "author": "Kurimizumi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kurimizumi/Honeybee-Web/issues"
+  },
+  "homepage": "https://github.com/Kurimizumi/Honeybee-Web#readme",
+  "dependencies": {
+    "eventemitter3": "^1.2.0",
+    "net-browserify": "^0.2.3"
+  }
+}
