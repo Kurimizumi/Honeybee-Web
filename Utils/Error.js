@@ -60,13 +60,15 @@ module.exports.findError = function(error, type) {
 module.exports.sendError = function(socket, error, disconnect) {
   //Tell the user about the error
   try {
-    socket.sendMessage({'error': module.exports.findError(error, 'number')},
+    socket.send(JSON.stringify(
+      {'error': module.exports.findError(error, 'number')}),
       function(error) {
-      //If we wanted to disconnect, do so to prevent further communications
-      if(disconnect) {
-        socket.destroy();
+        //If we wanted to disconnect, do so to prevent further communications
+        if(disconnect) {
+          socket.close();
+        }
       }
-    });
+    );
   } catch(e) {
     //Destroy socket
     socket.destroy();

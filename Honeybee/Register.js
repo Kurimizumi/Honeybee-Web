@@ -13,7 +13,8 @@ module.exports = function(socket, eventHandler, storage, serverPublicKey,
   //Start handshake
   handshake(socket, serverPublicKey, function(sessionKey) {
     //Once handshake is successful, listen for another message from registering
-    socket.once('message', function(message) {
+    socket.onmessage = function(event) {
+      var message = JSON.parse(event.data);
       if(Error.findError(message.error)) {
         //Error has occured
         console.log('Error: ' + Error.findError(message.error));
@@ -35,7 +36,7 @@ module.exports = function(socket, eventHandler, storage, serverPublicKey,
       storage.setItem('key', privateKey);
       storage.setItem('id', message.id);
       callback(privateKey, message.id);
-    });
+    };
     //Prepare register message
     var jsonmsg = {
       register: 'register'
@@ -53,11 +54,11 @@ module.exports = function(socket, eventHandler, storage, serverPublicKey,
     }
     //Send registration message
     try {
-      socket.sendMessage({type: 'register', payload: encrypted.encrypted,
-        tag: encrypted.tag, iv: iv});
+      socket.send(JSON.stringify({type: 'register',payload: encrypted.encrypted,
+        tag: encrypted.tag, iv: iv}));
     } catch(e) {
       //Destroy socket
-      socket.destroy();
+      socket.close();
       return;
     }
   });

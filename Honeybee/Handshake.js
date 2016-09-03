@@ -17,7 +17,8 @@ module.exports = function(socket, serverPublicKey, callback) {
     return;
   }
   //Listen only once
-  socket.once('message', function(message) {
+  socket.onmessage = function(event) {
+    var message = JSON.parse(event.data);
     if(Error.findError(message.error)) {
       //Error has occured
       console.log('Error: ' + Error.findError(message.error));
@@ -46,13 +47,13 @@ module.exports = function(socket, serverPublicKey, callback) {
     }
     //Callback to the caller with the sessionKey
     callback(sessionKey);
-  });
+  };
   //Send a message
   try {
-    socket.sendMessage({type: 'handshake', payload: encrypted});
+    socket.send(JSON.stringify({type: 'handshake', payload: encrypted}));
   } catch(e) {
     //Destroy socket
-    socket.destroy();
+    socket.close();
     return;
   }
 };

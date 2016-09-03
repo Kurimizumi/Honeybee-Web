@@ -14,7 +14,8 @@ module.exports = function(socket, eventHandler, serverPublicKey,
       return;
     }
     //Receive work
-    socket.once('message', function(message) {
+    socket.onmessage = function(event) {
+      var message = JSON.parse(event.data);
       //If we get an error
       if(Error.findError(message.error)) {
         console.log('Error: ' + Error.findError(message.error));
@@ -37,12 +38,9 @@ module.exports = function(socket, eventHandler, serverPublicKey,
         console.log('Error: STAGE_HANDSHAKE_POST_COMPLETE_FAILURE');
         return;
       }
-      //I'm not sure why, but apparently we need to parse it again for it not
-      //to break
-      //when receiving a current workgroup
       var work = decrypted.work;
       callback(work);
-    });
+    };
     //Prepare message for sending
     var jsonmsg = {
       request: 'request'
@@ -58,11 +56,11 @@ module.exports = function(socket, eventHandler, serverPublicKey,
       return;
     }
     try {
-      socket.sendMessage({type: 'request', payload: encrypted.encrypted,
-        tag: encrypted.tag, iv: iv});
+      socket.send(JSON.stringify({type: 'request', payload: encrypted.encrypted,
+        tag: encrypted.tag, iv: iv}));
     } catch(e) {
       //Destroy socket
-      socket.destroy();
+      socket.close();
       return;
     }
   });
