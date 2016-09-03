@@ -26,7 +26,7 @@ var Honeybee = function(settings, callback) {
   //Create an instance of eventEmitter in order to be able to use it later
   var eventHandler = new HoneybeeEventHandler();
   //Pass the eventHandler back to the client
-  callback(this.eventHandler);
+  callback(eventHandler);
   //Call the connection handler
   honeybeeConnectionHandler(eventHandler, settings);
 };

@@ -18,6 +18,7 @@ var settings = {
     key: key
   }
 };
+console.log('started');
 //Call the honeybee function
 honeybee(settings, function(eventHandler) {
   //Define our submission handler, to handle what happens once we submit work
