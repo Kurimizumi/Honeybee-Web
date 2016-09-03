@@ -87,7 +87,7 @@ EventHandler.prototype.constructor = EventHandler;
 
 module.exports = EventHandler;
 
-},{"eventemitter3":12}],3:[function(require,module,exports){
+},{"eventemitter3":13}],3:[function(require,module,exports){
 //Require the encryption modules
 var RSA = require('simple-encryption').RSA;
 var AES = require('simple-encryption').AES;
@@ -148,7 +148,7 @@ module.exports = function(socket, serverPublicKey, callback) {
   }
 };
 
-},{"../Utils/Error.js":8,"simple-encryption":13}],4:[function(require,module,exports){
+},{"../Utils/Error.js":8,"simple-encryption":14}],4:[function(require,module,exports){
 //Require the handshake
 var handshake = require('./Handshake.js');
 
@@ -215,7 +215,7 @@ module.exports = function(socket, eventHandler, storage, serverPublicKey,
   });
 };
 
-},{"../Utils/Error.js":8,"./Handshake.js":3,"simple-encryption":13}],5:[function(require,module,exports){
+},{"../Utils/Error.js":8,"./Handshake.js":3,"simple-encryption":14}],5:[function(require,module,exports){
 //Import verification module
 var verify = require('./Verify.js');
 //Import AES module
@@ -284,7 +284,7 @@ module.exports = function(socket, eventHandler, serverPublicKey,
   });
 };
 
-},{"../Utils/Error.js":8,"./Verify.js":7,"simple-encryption":13}],6:[function(require,module,exports){
+},{"../Utils/Error.js":8,"./Verify.js":7,"simple-encryption":14}],6:[function(require,module,exports){
 //Import verification module
 var verify = require('./Verify.js');
 //Import AES module
@@ -352,7 +352,7 @@ module.exports = function(socket, eventHandler, serverPublicKey,
   });
 };
 
-},{"../Utils/Error.js":8,"./Verify.js":7,"simple-encryption":13}],7:[function(require,module,exports){
+},{"../Utils/Error.js":8,"./Verify.js":7,"simple-encryption":14}],7:[function(require,module,exports){
 //Import encryption utils
 var RSA = require('simple-encryption').RSA;
 var AES = require('simple-encryption').AES;
@@ -431,7 +431,7 @@ module.exports = function(socket, eventHandler, serverPublicKey,
   });
 };
 
-},{"../Utils/Error.js":8,"./Handshake.js":3,"simple-encryption":13}],8:[function(require,module,exports){
+},{"../Utils/Error.js":8,"./Handshake.js":3,"simple-encryption":14}],8:[function(require,module,exports){
 //List of errors
 var errors = [
   //Unknown errors
@@ -511,6 +511,61 @@ module.exports.sendError = function(socket, error, disconnect) {
 };
 
 },{}],9:[function(require,module,exports){
+//Import the honeybee module
+var honeybee = require('../index.js');
+
+//Define key
+var key = '-----BEGIN PUBLIC KEY-----\r\n' +
+'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8O9RtFl/fzWr3YgVk0Jq\r\n' +
+'YyrWYe5v03NMgxsBpK3VStl0chc7BAdAm4nNT2JoRbL4Q3EvODsYOGzqwr3iphHD\r\n' +
+'XATkMyWiKX1fh9yl+qZB2cz0O7heSIEYOt4fbdebPn5G2xU1gZuluBVHHK+czEml\r\n' +
+'ZOv/5iV2JyXt4v++4wKIW+cja2bm8x6bI+e5PRMXYpGw7JCqReuK2fUhswzM8mod\r\n' +
+'IoE+tA2YBcaCuYtZ2Ak+DhxzBkHfdmTc/RPHDN2a8JZ8PUC7BgAzCiHUOYM0gFQr\r\n' +
+'+qXr0CbHuSyyDbTRALTPG+qqyWDRbhRhiCHHLx4lxD2tclnpX4U+dSo60didkOT8\r\n' +
+'EwIDAQAB\r\n' +
+'-----END PUBLIC KEY-----';
+
+//Define settings
+var settings = {
+  encryption: {
+    key: key
+  }
+};
+//Call the honeybee function
+honeybee(settings, function(eventHandler) {
+  //Define our submission handler, to handle what happens once we submit work
+  var submitHandler = function(success) {
+    //Tell the client the status of our submission
+    console.log('Submission ' + (success ? 'succeeded' : 'failed'));
+    //Request more work, and pass it to the work handler
+    eventHandler.request(workHandler);
+  };
+  //Define our work handler, to handle what happens when we receive work
+  var workHandler = function(work) {
+    //Define our piSection variable, to store the part of pi we calculated
+    var piSection = 0;
+    //Define n for Leibniz's formula, and calculate current position in it
+    var n = 1 + (4*10000*work.counter);
+    //Loop from 0 (incl) to 1000000000 (excl)
+    for(var i=0; i < 10000; i++) {
+      //Do the current pair of the series
+      piSection += (4/n)-(4/(n+2));
+      //Add 4 to n
+      n += 4;
+    }
+    //Log the piSection we just calculated to the console
+    console.log('Calculated PiSection: ' + piSection);
+    //Submit the work and callback to the submitHandler
+    eventHandler.submit(piSection, submitHandler);
+  };
+  //Callback once we know the client is registered and ready
+  eventHandler.once('registered', function() {
+    //Request our first piece of work
+    eventHandler.request(workHandler);
+  });
+});
+
+},{"../index.js":10}],10:[function(require,module,exports){
 //GENERIC IMPORTS
 //Import event emitter in order for people to be able to listen to events fired
 //by us
@@ -530,29 +585,24 @@ var HoneybeeEventHandler = require('./Honeybee/EventHandler.js');
 //key = public RSA key of the server
 var Honeybee = function(settings, callback) {
   //Set default settings
-  this.settings = defaults(settings, {
+  settings = defaults(settings, {
     connection: {
       hostname: 'localhost',
       port: 54321
     }
   });
-  //Set settings to indivial variables
-  this.hostname = this.settings.connection.hostname;
-  this.port = this.settings.connection.port;
-  this.key = this.settings.encryption.key;
   //Create an instance of eventEmitter in order to be able to use it later
-  this.eventHandler = new HoneybeeEventHandler();
+  var eventHandler = new HoneybeeEventHandler();
   //Pass the eventHandler back to the client
   callback(this.eventHandler);
   //Call the connection handler
-  honeybeeConnectionHandler(this.hostname, this.port, this.key,
-    this.eventHandler);
+  honeybeeConnectionHandler(eventHandler, settings);
 };
 
 //Export functions
 module.exports = Honeybee;
 
-},{"./Honeybee/ConnectionHandler.js":1,"./Honeybee/EventHandler.js":2,"deep-defaults":10,"events":16}],10:[function(require,module,exports){
+},{"./Honeybee/ConnectionHandler.js":1,"./Honeybee/EventHandler.js":2,"deep-defaults":11,"events":17}],11:[function(require,module,exports){
 'use strict';
 
 var _ = require('lodash');
@@ -578,7 +628,7 @@ function _deepDefaults(dest, src) {
 }
 
 exports = module.exports = _deepDefaults;
-},{"lodash":11}],11:[function(require,module,exports){
+},{"lodash":12}],12:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -11378,7 +11428,7 @@ exports = module.exports = _deepDefaults;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 var has = Object.prototype.hasOwnProperty;
@@ -11669,13 +11719,13 @@ if ('undefined' !== typeof module) {
   module.exports = EventEmitter;
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = {
   AES: require('./lib/AES.js'),
   RSA: require('./lib/RSA.js')
 }
 
-},{"./lib/AES.js":14,"./lib/RSA.js":15}],14:[function(require,module,exports){
+},{"./lib/AES.js":15,"./lib/RSA.js":16}],15:[function(require,module,exports){
 //Import forge
 var forge = window.forge;
 
@@ -11730,7 +11780,7 @@ module.exports.generateKey = function(bytes) {
   return forge.util.encode64(forge.random.getBytesSync(bytes));
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 //Import forge
 var forge = window.forge;
 
@@ -11777,7 +11827,7 @@ module.exports.verify = function(publicKey, message, hash) {
     forge.util.decode64(message));
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

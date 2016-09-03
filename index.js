@@ -17,23 +17,18 @@ var HoneybeeEventHandler = require('./Honeybee/EventHandler.js');
 //key = public RSA key of the server
 var Honeybee = function(settings, callback) {
   //Set default settings
-  this.settings = defaults(settings, {
+  settings = defaults(settings, {
     connection: {
       hostname: 'localhost',
       port: 54321
     }
   });
-  //Set settings to indivial variables
-  this.hostname = this.settings.connection.hostname;
-  this.port = this.settings.connection.port;
-  this.key = this.settings.encryption.key;
   //Create an instance of eventEmitter in order to be able to use it later
-  this.eventHandler = new HoneybeeEventHandler();
+  var eventHandler = new HoneybeeEventHandler();
   //Pass the eventHandler back to the client
   callback(this.eventHandler);
   //Call the connection handler
-  honeybeeConnectionHandler(this.hostname, this.port, this.key,
-    this.eventHandler);
+  honeybeeConnectionHandler(eventHandler, settings);
 };
 
 //Export functions

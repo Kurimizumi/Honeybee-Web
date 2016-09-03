@@ -1,5 +1,5 @@
 //Import the honeybee module
-var Honeybee = require('../HB/index.js');
+var honeybee = require('../index.js');
 
 //Define key
 var key = '-----BEGIN PUBLIC KEY-----\r\n' +
@@ -19,7 +19,7 @@ var settings = {
   }
 };
 //Call the honeybee function
-Honeybee(settings, function(eventHandler) {
+honeybee(settings, function(eventHandler) {
   //Define our submission handler, to handle what happens once we submit work
   var submitHandler = function(success) {
     //Tell the client the status of our submission
