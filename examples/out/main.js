@@ -21,12 +21,12 @@ var main = function(address, port, serverPublicKey, eventHandler,
   });
   eventHandler.on('submit', function(data, callback) {
     //Create socket
-    var socket = new JsonSocket(net.connect({host: address, port: port}));
+    var socket = new WebSocket('ws://' + address + ':' + port);
     //Wait until we are connected
-    socket.on('connect', function() {
+    socket.onopen = function(event) {
       submit(socket, eventHandler, serverPublicKey,
         clientPrivateKey, clientID, data, callback);
-    });
+    };
   });
   //Alert client that we have registered and are ready for work
   eventHandler.registered();
