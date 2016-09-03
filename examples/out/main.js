@@ -589,7 +589,7 @@ var Honeybee = function(settings, callback) {
   settings = defaults(settings, {
     connection: {
       hostname: 'localhost',
-      port: 54321
+      port: 54322
     }
   });
   //Create an instance of eventEmitter in order to be able to use it later
