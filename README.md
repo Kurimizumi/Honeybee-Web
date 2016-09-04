@@ -32,7 +32,7 @@ As you can see, there is a `build` directory in this git project. This is the di
 ### Creating the worker file
 Inside of that you should be able to see a file called `main.js`. This shows an example of how to write a worker file, but it's generally the same example as the main Honeybee-Hive example.
 
-You should modify this to your needs following the Honeybee-Hive documentation.
+You should modify this to your needs following the [Honeybee-Hive documentation](https://github.com/Kurimizumi/Honeybee-Hive/tree/master#client-1).
 
 ### Building the bundle
 Once finished, navigate to the root directory, and then run this command:
