@@ -1,26 +1,27 @@
 # Honeybee-Hive
-[![CircleCI][circleci-image]][circleci-link]
-[![NPM Version][version-image]][npm-link]
-[![NPM Download][download-image]][npm-link]
 
-A node module to allow for volunteer computing, like BOINC.
+A node module to allow for volunteer computing in the browser, like BOINC.
 
 ## Install
-```bash
-npm install honeybee-hive --save
-```
+See [usage](https://github.com/Kurimizumi/Honeybee-Web#usage)
 
 ## Notes
 * Alpha stages, expect breaking changes between versions currently
 
 ## Usage
-### Installing required node modules
-You should first install all the required node modules by doing this:
+### Installing required prerequisites
+Firstly, you should clone the project like this, and navigate into it
+```bash
+git clone https://github.com/Kurimizumi/Honeybee-Web.git
+cd Honeybee-Web
+```
+
+You should then install all the required node modules by doing this:
 ```bash
 npm install
 ```
 
-You should also install browserify like this:
+You should finally install browserify like this:
 ```bash
 sudo npm install -g browserify
 ```
@@ -62,8 +63,3 @@ You should include the script in your website like this:
 [ISC][license-link]
 
 [license-link]: https://github.com/Kurimizumi/Honeybee-Hive/blob/master/LICENSE.md
-[circleci-image]: https://circleci.com/gh/Kurimizumi/Honeybee-Hive.svg?&style=shield
-[circleci-link]: https://circleci.com/gh/Kurimizumi/Honeybee-Hive
-[npm-link]: https://npmjs.org/package/honeybee-hive
-[version-image]: https://img.shields.io/npm/v/honeybee-hive.svg
-[download-image]: https://img.shields.io/npm/dm/honeybee-hive.svg
