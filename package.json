@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "forge": "(cd node_modules/node-forge && npm install && npm run bundle && cp js/forge.bundle.js ../../build/out)",
-    "build": "npm run forge && browserify build/main.js > build/out/bundle.js"
+    "build": "npm run forge && ./node_modules/.bin/browserify build/main.js > build/out/bundle.js"
   },
   "repository": {
     "type": "git",
