@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Kurimizumi/Honeybee-Web#readme",
   "dependencies": {
+    "browserify": "^13.1.0",
     "eventemitter3": "^1.2.0",
     "net-browserify": "^0.2.3"
   }
