@@ -21,15 +21,9 @@ You should then install all the required node modules by doing this:
 npm install
 ```
 
-You should finally install browserify like this:
-```bash
-sudo npm install -g browserify
-```
-
-### Directory structure
+### Creating the worker file
 As you can see, there is a `build` directory in this git project. This is the directory that you will use most of the time.
 
-### Creating the worker file
 Inside of that you should be able to see a file called `main.js`. This shows an example of how to write a worker file, but it's generally the same example as the main Honeybee-Hive example.
 
 You should modify this to your needs following the [Honeybee-Hive documentation](https://github.com/Kurimizumi/Honeybee-Hive/tree/master#client-1).
