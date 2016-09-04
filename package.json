@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "forge": "(cd node_modules/node-forge && npm install && npm run bundle && cp js/forge.bundle.js ../../js)",
-    "build": "npm run forge && browserify js/scripts/main.js > js/bundle.js"
+    "forge": "(cd node_modules/node-forge && npm install && npm run bundle && cp js/forge.bundle.js ../../build/out)",
+    "build": "npm run forge && browserify build/main.js > build/out/bundle.js"
   },
   "repository": {
     "type": "git",
