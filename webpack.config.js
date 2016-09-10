@@ -4,7 +4,7 @@ const webpack = require('webpack')
 module.exports = {
     entry: "./build/main.js",
     output: {
-        filename: "build/out/out.js"
+        filename: "build/out/main.js"
     },
     module: {
         loaders: [
