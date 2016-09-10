@@ -16,11 +16,6 @@ module.exports = {
             ]
         
     },
-    resolve: {
-        alias: {
-          "node-forge": `${dir}/build/out/forge.bundle.js`
-        }
-    },
     plugins: [
         new webpack.optimize.UglifyJsPlugin({
             compress: {
