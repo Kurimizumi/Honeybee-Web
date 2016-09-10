@@ -23,6 +23,11 @@ console.log('started');
 honeybee(settings, function(eventHandler) {
   //Define our submission handler, to handle what happens once we submit work
   const submitHandler = function(error, success) {
+    if(error) {
+      //If we errored, tell the client
+      console.log(error.toString());
+      return;
+    }
     //Tell the client the status of our submission
     console.log('Submission ' + (success ? 'succeeded' : 'failed'));
     //Request more work, and pass it to the work handler
@@ -30,6 +35,7 @@ honeybee(settings, function(eventHandler) {
   };
   //Define our work handler, to handle what happens when we receive work
   const workHandler = function(error, work) {
+    //If we errored, tell the client
     if(error) {
       console.log(error.toString());
       return;
