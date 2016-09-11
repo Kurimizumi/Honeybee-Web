@@ -7,7 +7,7 @@ const request = require('./Request.js');
 const submit = require('./Submit.js');
 
 const main = function(address, port, serverPublicKey, eventHandler,
-  clientPrivateKey, clientID) {
+  clientPrivateKey, clientID, strength) {
   //Register for alerts
   eventHandler.on('request', function(callback) {
     //Create socket
@@ -15,7 +15,7 @@ const main = function(address, port, serverPublicKey, eventHandler,
     //Wait until we are connected
     socket.onopen = function(event) {
       request(socket, eventHandler, serverPublicKey,
-        clientPrivateKey, clientID, callback);
+        clientPrivateKey, clientID, strength, callback);
     };
   });
   eventHandler.on('submit', function(data, callback) {
@@ -24,7 +24,7 @@ const main = function(address, port, serverPublicKey, eventHandler,
     //Wait until we are connected
     socket.onopen = function(event) {
       submit(socket, eventHandler, serverPublicKey,
-        clientPrivateKey, clientID, data, callback);
+        clientPrivateKey, clientID, strength, data, callback);
     };
   });
   //Alert client that we have registered and are ready for work
@@ -44,10 +44,12 @@ module.exports = function(eventHandler, settings) {
     socket.onopen = function(event) {
       //Call register function
       register(socket, eventHandler, storage, settings.encryption.key,
+        settings.proofOfWork.strength,
         function(error, clientPrivateKey, clientID) {
         //Once finished, get the private key and clientID call the main function
         main(settings.connection.hostname, settings.connection.port,
-          settings.encryption.key, eventHandler, clientPrivateKey, clientID);
+          settings.encryption.key, eventHandler, clientPrivateKey, clientID,
+          settings.proofOfWork.strength);
       });
     };
     //Stop execution (main is called once connected)

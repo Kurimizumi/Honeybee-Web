@@ -7,10 +7,13 @@ const errorHandler = require('../error/errorHandler.js');
 const errorList = require('../error/errorList.js');
 //handshake
 const handshake = require('./Handshake.js');
+//Import hashcashgen
+const hashcashgen = require('hashcashgen');
 //Export main function
 module.exports = function(socket, eventHandler, serverPublicKey,
-  clientPrivateKey, clientID, callback) {
-      handshake(socket, serverPublicKey, function(error, sessionKey) {
+  clientPrivateKey, clientID, strength, callback) {
+      handshake(socket, serverPublicKey,
+        function(error, challenge, sessionKey) {
     //If an error occured, pass it to the user
     if(error) {
       return callback(error);
@@ -63,10 +66,13 @@ module.exports = function(socket, eventHandler, serverPublicKey,
     } catch(e) {
       return callback(new errorList.SecuritySigningFailure());
     }
+    //Create hashcash
+    const hashcash = hashcashgen(challenge, strength);
     //Prepare json message for aes encryption
     let jsonmsg = {
       verify: signed,
-      md: md
+      md: md,
+      hashcash: hashcash
     };
     //Generate IV
     let iv = AES.generateIV();

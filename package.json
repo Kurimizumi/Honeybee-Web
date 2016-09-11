@@ -20,7 +20,8 @@
   "homepage": "https://github.com/Kurimizumi/Honeybee-Web#readme",
   "dependencies": {
     "almond": "^0.3.3",
-    "eventemitter3": "^1.2.0"
+    "eventemitter3": "^1.2.0",
+    "hashcashgen": "git+https://github.com/Kurimizumi/node-hashcashgen-web.git"
   },
   "devDependencies": {
     "babel-loader": "^6.2.5",
