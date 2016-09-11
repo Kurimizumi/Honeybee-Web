@@ -47,7 +47,6 @@ module.exports = function(socket, eventHandler, storage, serverPublicKey,
     };
     //Generate hashcash
     const hashcash = hashcashgen(challenge, strength);
-    console.log(hashcash);
     //Declare encrypted letiable
     let encrypted;
     //Generate IV
