@@ -1,52 +1,46 @@
+'use strict';
 //Require the encryption modules
-var RSA = require('simple-encryption').RSA;
-var AES = require('simple-encryption').AES;
+const RSA = require('simple-encryption').RSA;
+const AES = require('simple-encryption').AES;
 //Error handler
-var Error = require('../Utils/Error.js');
+const errorHandler = require('../error/errorHandler.js');
+const errorList = require('../error/errorList.js');
 //Export main function
 module.exports = function(socket, serverPublicKey, callback) {
   //Generate a session key
-  var sessionKey = AES.generateKey();
+  const sessionKey = AES.generateKey();
   //Encrypt it with the serverPublicKey
-  var encrypted;
+  let encrypted;
   //Attempt to encrypt, otherwise error to user
   try {
     encrypted = RSA.encrypt(serverPublicKey, JSON.stringify({key: sessionKey}));
   } catch(e) {
-    console.log('Error: SECURITY_ENCRYPTION_FAILURE');
-    return;
+    //Return to user
+    return callback(new errorList.SecurityEncryptionFailure());
   }
   //Listen only once
   socket.onmessage = function(event) {
-    var message = JSON.parse(event.data);
-    if(Error.findError(message.error)) {
+    const message = JSON.parse(event.data);
+    if(message.error) {
       //Error has occured
-      console.log('Error: ' + Error.findError(message.error));
-      return;
+      return callback(errorHandler.createError(message.error));
     }
-    var payload = message.payload;
-    var tag = message.tag;
-    var iv = message.iv;
+    const payload = message.payload;
+    const tag = message.tag;
+    const iv = message.iv;
     //Try to decrypt
-    var decrypted;
+    let decrypted;
     try {
       decrypted = JSON.parse(AES.decrypt(sessionKey, iv, tag, payload));
     } catch(e) {
-      console.log('Error: SECURITY_DECRYPTION_FAILURE');
-      return;
+      return callback(new errorList.SecurityDecryptionFailure());
     }
     //Tag wasn't correct
     if(decrypted == null) {
-      console.log('Error: STAGE_HANDSHAKE_GENERIC');
-      return;
+      return callback(new errorList.HandshakeGeneric());
     }
-    //Encrypted text wasn't correct
-    if(decrypted !== 'success') {
-      console.log('Error: STAGE_HANDSHAKE_GENERIC');
-      return;
-    }
-    //Callback to the caller with the sessionKey
-    callback(sessionKey);
+    //Callback to the caller with the challenge, sessionKey, and no error
+    callback(null, decrypted, sessionKey);
   };
   //Send a message
   try {

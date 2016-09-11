@@ -1,68 +1,87 @@
+'use strict';
 //Import encryption utils
-var RSA = require('simple-encryption').RSA;
-var AES = require('simple-encryption').AES;
+const RSA = require('simple-encryption').RSA;
+const AES = require('simple-encryption').AES;
 //Error handler
-var Error = require('../Utils/Error.js');
+const errorHandler = require('../error/errorHandler.js');
+const errorList = require('../error/errorList.js');
 //handshake
-var handshake = require('./Handshake.js');
+const handshake = require('./Handshake.js');
+//Import hashcashgen
+const hashcashgen = require('hashcashgen');
 //Export main function
 module.exports = function(socket, eventHandler, serverPublicKey,
-  clientPrivateKey, clientID, callback) {
-    handshake(socket, serverPublicKey, function(sessionKey) {
+  clientPrivateKey, clientID, strength, callback) {
+      handshake(socket, serverPublicKey,
+        function(error, challenge, sessionKey) {
+    //If an error occured, pass it to the user
+    if(error) {
+      return callback(error);
+    }
     //Once handshake has been completed, listen to verification messages
     socket.onmessage = function(event) {
-      var message = JSON.parse(event.data);
-      if(Error.findError(message.error)) {
+      const message = JSON.parse(event.data);
+      if(message.error) {
+        //Create the error
+        let err = errorHandler.createError(message.error);
+        //If it's a registration failure, invalidate saved information and
+        //revalidate
+        if(err instanceof errorList.SecurityVerificationFailure) {
+          //TODO: Reregister user
+          //NOTE: Not sure on how this will be done yet
+        }
         //An error has occured
-        console.log('Error: ' + Error.findError(message.error));
-        return;
+        return callback(err);
       }
       //Encryption information
-      var payload = message.payload;
-      var tag = message.tag;
-      var iv = message.iv;
+      const payload = message.payload;
+      const tag = message.tag;
+      const iv = message.iv;
 
       //Try to decrypt
-      var decrypted;
+      let decrypted;
       try {
         decrypted = JSON.parse(AES.decrypt(sessionKey, iv, tag, payload));
       } catch(e) {
-        console.log('Error: SECURITY_DECRYPTION_FAILURE');
-        return;
+        return callback(new errorList.SecurityDecryptionFailure());
       }
 
       //If authentication failed
       if(decrypted == null) {
-        console.log('Error: STAGE_HANDSHAKE_POST_COMPLETE_FAILURE');
-        return;
+        return callback(new errorList.HandshakePostCompleteFailure());
       }
-      callback(decrypted.verified, sessionKey);
+      if(!decrypted.verified) {
+        //TODO: Reregister user
+        return callback(new errorList.SecurityVerificationFailure());
+      }
+      callback(null, decrypted.verified, sessionKey);
     };
     //Prepare verification section
-    var signed, md;
+    let signed, md;
     //Try to sign message
     try {
-      var out = RSA.sign(clientPrivateKey, 'verify');
+      let out = RSA.sign(clientPrivateKey, 'verify');
       signed = out.signed;
       md = out.md;
     } catch(e) {
-      console.log('Error: SECURITY_SIGNING_FAILURE');
-      return;
+      return callback(new errorList.SecuritySigningFailure());
     }
+    //Create hashcash
+    const hashcash = hashcashgen(challenge, strength);
     //Prepare json message for aes encryption
-    var jsonmsg = {
+    let jsonmsg = {
       verify: signed,
-      md: md
+      md: md,
+      hashcash: hashcash
     };
     //Generate IV
-    var iv = AES.generateIV();
+    let iv = AES.generateIV();
     //Try to encrypt
-    var encrypted;
+    let encrypted;
     try {
       encrypted = AES.encrypt(sessionKey, iv, JSON.stringify(jsonmsg));
     } catch(e) {
-      console.log('Error: SECURITY_ENCRYPTION_FAILURE');
-      return;
+      return callback(new errorList.SecurityEncryptionFailure());
     }
     //Send message to server
     try {

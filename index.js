@@ -21,6 +21,9 @@ var Honeybee = function(settings, callback) {
     connection: {
       hostname: 'localhost',
       port: 54322
+    },
+    proofOfWork: {
+      strength: 4
     }
   });
   //Create an instance of eventEmitter in order to be able to use it later
